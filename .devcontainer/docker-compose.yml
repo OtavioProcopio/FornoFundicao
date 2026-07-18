@@ -1,0 +1,50 @@
+services:
+  devcontainer:
+    build:
+      context: ..
+      dockerfile: .devcontainer/Dockerfile
+    volumes:
+      - ..:/workspaces/FornoFundicao:cached
+      - ${HOME}/.ssh:/home/vscode/.ssh:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+    privileged: true
+    command: sleep infinity
+    environment:
+      - LOG_LEVEL=DEBUG
+      - TZ=America/Sao_Paulo
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=forno_fundicao
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - forno-fundicao-dev-network
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: forno-fundicao-dev-postgres
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=forno_fundicao
+    ports:
+      - "55435:5432"
+    volumes:
+      - forno_fundicao_dev_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d forno_fundicao"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - forno-fundicao-dev-network
+
+volumes:
+  forno_fundicao_dev_postgres_data:
+
+networks:
+  forno-fundicao-dev-network:
+    driver: bridge
