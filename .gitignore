@@ -1,6 +1,37 @@
+# Tooling local (agentes/IDE)
 .claude/
 .claude-flow/
+
+# Segredos
 .env
 .env.local
+.env.*.local
+
+# Logs
 *.log
+
+# Node (frontend futuro)
 node_modules/
+
+# Python
+.venv/
+venv/
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+htmlcov/
+.coverage
+.coverage.*
+*.egg-info/
+dist/
+build/
+
+# Editor/OS
+.vscode/*
+!.vscode/settings.json
+!.vscode/launch.json
+.idea/
+.DS_Store

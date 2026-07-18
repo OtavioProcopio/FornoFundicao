@@ -1,0 +1,6 @@
+[run]
+omit =
+    */migrations/*
+    */.venv/*
+    conftest.py
+    bootstrap_test.py

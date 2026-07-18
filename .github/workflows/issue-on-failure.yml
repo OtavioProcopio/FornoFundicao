@@ -1,0 +1,77 @@
+name: Issue on Failure
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  create-issue:
+    name: Abrir issue quando o CI quebra em develop/main
+    runs-on: ubuntu-latest
+    if: >
+      github.event.workflow_run.conclusion == 'failure' &&
+      contains(fromJSON('["develop", "main"]'), github.event.workflow_run.head_branch)
+
+    steps:
+      - name: Criar ou atualizar issue de falha
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const run = context.payload.workflow_run;
+            const branch = run.head_branch;
+            const label = 'ci-failure';
+            const title = `CI falhou em \`${branch}\` (${run.head_sha.substring(0, 7)})`;
+
+            const { data: openIssues } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: label,
+            });
+
+            const already = openIssues.find(i => i.title.includes(`em \`${branch}\``));
+            if (already) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: already.number,
+                body: `Nova falha no mesmo branch: ${run.html_url}`,
+              });
+              return;
+            }
+
+            for (const l of ['bug', label]) {
+              try {
+                await github.rest.issues.getLabel({ owner: context.repo.owner, repo: context.repo.repo, name: l });
+              } catch {
+                const colors = { bug: 'd73a4a', 'ci-failure': 'e11d48' };
+                await github.rest.issues.createLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  name: l,
+                  color: colors[l] ?? 'eeeeee',
+                });
+              }
+            }
+
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title,
+              labels: ['bug', label],
+              body: [
+                `O workflow **CI** falhou após um push em \`${branch}\`.`,
+                '',
+                `- Commit: ${run.head_sha}`,
+                `- Run: ${run.html_url}`,
+                '',
+                'Abra uma branch `fix/*` ou `bugfix/*` a partir de `develop`, corrija o ' +
+                'problema e abra um PR referenciando `Closes #<numero-desta-issue>` ' +
+                '(ver docs/automacao-ci.md).',
+              ].join('\n'),
+            });

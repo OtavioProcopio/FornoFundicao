@@ -11,6 +11,16 @@
 
 ---
 
+## Issue relacionada
+
+<!-- Se esta PR resolve uma issue, mantenha a linha abaixo — o GitHub fecha a
+     issue automaticamente ao mergear (ver docs/automacao-ci.md). Apague se
+     não houver issue. -->
+
+Closes #
+
+---
+
 ## O que foi feito?
 
 <!-- Descreva a mudança de forma clara e objetiva. -->
