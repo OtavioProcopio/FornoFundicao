@@ -1,0 +1,1 @@
+# Adapter repositories tests package
