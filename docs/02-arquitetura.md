@@ -1,48 +1,52 @@
-# Arquitetura proposta (fase 1 — pirômetros)
+# 🏛️ Arquitetura do Sistema — Ingestão Automática de Pirômetros
 
-## Formato: aplicativo web local
+## 💡 Mudança Fundamental de Escopo: Fim do Apontamento Manual
+Conforme alinhado com a gestão, **os pirômetros já possuem um receptor USB conectado a um PC local na fábrica**, rodando um software proprietário do fabricante que recebe os dados dos pirômetros automaticamente via rádio/wireless.
 
-Decisão confirmada: app web rodando localmente na rede da fábrica, com banco
-de dados. A chefe já tem um PC que "oferece conexão a um banco de dados" —
-vale confirmar (ver perguntas abertas) se isso é um SQL Server / Access / outro
-já instalado, para decidir se aproveitamos ou subimos um banco novo (ex.
-PostgreSQL) num serviço simples.
+Portanto, **o sistema NÃO terá apontamento manual de temperatura**. O fluxo passa a ser **100% automatizado na coleta de dados térmicos**.
 
-Proposta de componentes, do mais simples para o mais completo — começar pelo nível 1:
+---
 
-1. **Nível 1 (MVP)**: formulário web simples (rodando num PC/servidor da rede
-   local) onde o operador escolhe o pirômetro, escolhe o código (0–99, já
-   traduzido para o nome da etapa daquele pirômetro), digita a temperatura
-   lida, e salva. Lista/relatório simples de leituras do dia por pirômetro.
-2. **Nível 2**: amarrar cada leitura a uma "corrida" ou "lote" de fundição
-   (para saber depois qual peça saiu de qual conjunto de medições).
-3. **Nível 3**: alertas automáticos quando a temperatura sai da faixa esperada
-   para aquele código/etapa; dashboards por setor/turno/operador.
+## 🏗️ Modos de Ingestão de Dados do Receptor USB
 
-## Por que começar simples
+O software instalado no PC possui duas capacidades que aproveitaremos:
 
-O pedido original do chefe foi só "um sistema para os pirômetros". Não expandir
-escopo (cardans, espectrômetros, CLPs) até o nível 1 estar rodando e validado
-com os operadores. Resiliência a novos pirômetros já está coberta pelo modelo
-de dados (tabela `pirometro` + `codigo_pirometro`), não precisa de
-complexidade extra de infraestrutura para isso.
+### Opção A: Conexão Direta ao Banco de Dados (Preferencial)
+*   **Como Funciona**: Configuramos as credenciais do nosso banco de dados (PostgreSQL local) no software do receptor USB.
+*   **Fluxo**: O software insere diretamente as leituras recebidas via USB nas tabelas de staging/leitura do PostgreSQL.
+*   **Vantagem**: Latência de milissegundos, sem intermediários.
 
-## Rede e acesso
+### Opção B: Importador/Watcher de Planilhas Excel/CSV (Fallback)
+*   **Como Funciona**: Se o software do receptor apenas salvar arquivos `.xlsx` ou `.csv` em uma pasta local/compartilhada, o backend do nosso sistema terá um serviço de **File Watcher / Parser**.
+*   **Fluxo**: O backend detecta novos registros inseridos na planilha Excel e os importa automaticamente para o PostgreSQL.
+*   **Vantagem**: Funciona mesmo se o software do receptor tiver limitações no suporte a banco de dados.
 
-- 4 pirômetros hoje, sem indicação de que os próprios aparelhos tenham saída
-  de rede/API — a leitura hoje é manual (operador lê o mostrador do
-  pirômetro e digita em algum lugar). Confirmar isso antes de imaginar
-  integração automática (alguns pirômetros industriais têm saída RS-485/4-20mA/
-  Modbus, mas isso é outro projeto).
-- O sistema, nesta fase, é primariamente um **formulário de apontamento
-  manual** + banco de dados + relatórios. Não pressupor leitura automática do
-  instrumento.
+---
 
-## CLPs dos fornos (nota, não escopo da fase 1)
+## 🔄 Novo Fluxo do Sistema
 
-O usuário mencionou que os fornos têm CLPs e que talvez dê pra conectá-los à
-rede e puxar dados deles. Isso é tecnicamente viável (a maioria dos CLPs
-industriais fala Modbus TCP/RTU, Profinet, ou tem gateway OPC-UA), mas é um
-projeto à parte, com riscos de segurança/operação (rede de automação
-normalmente é segregada da rede de escritório por boas razões). Não misturar
-com a entrega dos pirômetros — registrar como possível fase futura.
+```
+[4 Pirômetros Físicos]
+       │ (Sinal Wireless)
+       ▼
+[Receptor USB + Software no PC]
+       │
+       ├──► (Opção A) Gravação Direta no PostgreSQL
+       └──► (Opção B) Exportação Excel ──► [Watcher/Importador Backend] ──► PostgreSQL
+                                                                               │
+                                                                               ▼
+                                                            [API FastAPI + Regras de Negócio]
+                                                                               │
+                                                                               ├──► Enriquecimento (Corrida/Lote/Panela)
+                                                                               ├──► Validação de Limites Térmicos
+                                                                               └──► Dashboards & Alertas em Tempo Real
+```
+
+---
+
+## 🎯 Novo Papel do Sistema (Painel de Monitoramento & Rastreabilidade)
+
+Como o operador não precisa mais digitar a temperatura:
+1. **Monitoramento Automático**: A tela exibe as temperaturas chegando em tempo real.
+2. **Associação de Rastreabilidade**: O operador/supervisor apenas associa a corrida/lote/panela ativa ao pirômetro do forno naquele momento (1 clique/campo).
+3. **Alertas Visuais**: Se a temperatura coletada automaticamente pelo USB estiver fora da faixa daquela etapa/liga, o sistema emite alerta sonoro/visual.

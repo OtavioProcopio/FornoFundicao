@@ -1,33 +1,33 @@
-# 📐 Requisitos Funcionais, Não-Funcionais e Diagramas de Arquitetura
+# 📐 Requisitos Funcionais, Não-Funcionais e Diagramas de Arquitetura (Coleta Automática)
 
-Este documento especifica os Requisitos Funcionais (RFs), Requisitos Não-Funcionais (RNFs), Diagramas de Casos de Uso e Diagramas de Sequência do sistema **Forno Fundição**.
+Este documento especifica os Requisitos Funcionais (RFs), Requisitos Não-Funcionais (RNFs), Diagramas de Casos de Uso e Diagramas de Sequência do sistema **Forno Fundição**, atualizado para o modelo de **coleta automática via software do receptor USB**.
 
 ---
 
 ## 🎯 1. Requisitos Funcionais (RFs)
 
-### 📋 Módulo de Cadastro e Configuração
+### 📋 Módulo de Ingestão e Equipamentos
 *   **RF-01: Cadastro de Pirômetros**: O sistema deve permitir o cadastro e gerenciamento de pirômetros industriais (ex: PIR-01 a PIR-04), vinculando-os ao seu setor, material alvo (ex: SAE 1045, Ferro Nodular), processo e tipo de molde.
 *   **RF-02: Tabela de Códigos por Equipamento**: O sistema deve permitir associar uma tabela de códigos numéricos (0 a 99) a cada pirômetro específico, definindo para cada código o nome da etapa, descrição, ordenação e faixas de temperatura esperadas (`temp_min_esperada` e `temp_max_esperada`).
+*   **RF-03: Ingestão Automática de Medições**: O sistema deve capturar automaticamente as temperaturas enviadas pelos pirômetros via receptor USB (seja por gravação direta no banco de dados PostgreSQL ou via importação contínua de planilha Excel/CSV exportada pelo software do receptor).
 
-### 🌡️ Módulo de Apontamento e Validação
-*   **RF-03: Apontamento Manual de Temperatura**: O sistema deve permitir que o operador registre uma medição informando o pirômetro, o código da etapa (0-99), a temperatura lida no mostrador e observações opcionais.
-*   **RF-04: Rastreabilidade (Corrida, Lote e Panela)**: O sistema deve permitir vincular cada leitura a um identificador de **Corrida** (lote de fusão), **Lote** de peças e número da **Panela** (ladle).
-*   **RF-05: Validação e Alerta Térmico em Tempo Real**: Ao registrar uma leitura, o sistema deve verificar se a temperatura informada está dentro dos limites térmicos cadastrados para aquele código/pirômetro. Se a temperatura estiver fora da faixa, o sistema deve emitir um **alerta visual** de advertência, **sem impedir o salvamento da medição**.
+### 🌡️ Módulo de Rastreabilidade e Validação
+*   **RF-04: Rastreabilidade e Enriquecimento Contextual**: O sistema deve permitir vincular as leituras capturadas automaticamente aos identificadores operacionais de **Corrida** (lote de fusão), **Lote** de peças e número da **Panela** (*ladle*).
+*   **RF-05: Validação e Alerta Térmico em Tempo Real**: Ao processar cada medição automática, o sistema deve verificar se a temperatura capturada está dentro dos limites térmicos cadastrados para aquele código/pirômetro. Se a temperatura estiver fora da faixa, o sistema deve emitir um **alerta visual/sonoro no painel em tempo real**.
 
 ### 📊 Módulo de Gestão e Consultas
-*   **RF-06: Relatórios de Leituras**: O sistema deve fornecer consulta histórica de leituras com filtros por pirômetro, data, turno, corrida, lote ou operador.
+*   **RF-06: Dashboards e Relatórios**: O sistema deve exibir um painel em tempo real da fábrica com o estado dos fornos e permitir consulta histórica de leituras com filtros por pirômetro, data, turno, corrida, lote ou operador.
 *   **RF-07: Acompanhamento de Desgaste dos Cadinhos (Campanha do Forno)**: O sistema/processo deve permitir o registro e controle de medições de desgaste dos cadinhos para monitoramento da vida útil da campanha do forno.
 
 ---
 
 ## ⚡ 2. Requisitos Não-Funcionais (RNFs)
 
-*   **RNF-01: Desempenho e Latência**: A operação de registro de uma leitura pela API deve responder em menos de 500ms na rede local, garantindo fluidez na fábrica.
-*   **RNF-02: Imutabilidade dos Registros (Auditoria Industrial)**: Os registros de medição de temperatura (`Leitura`) são estritamente imutáveis. Não são permitidas operações de edição (`UPDATE`) ou remoção (`DELETE`) via API. Erros de digitação são corrigidos através do lançamento de uma nova medição contendo observação justificativa.
-*   **RNF-03: Operação Local On-Premises**: O sistema (Web App, API e Banco de Dados PostgreSQL) deve rodar 100% na rede local da fábrica da Rei Auto Parts, sem dependência de acesso à internet.
-*   **RNF-04: Usabilidade e Acessibilidade Industrial**: A interface web deve ser responsiva, limpa e com botões de tamanho adequado para uso em ambiente de fábrica (tablets industriais e PCs locais com luvas/ambientes sujos).
-*   **RNF-05: Arquitetura Extensível (Clean Architecture)**: O sistema deve seguir o padrão Clean Architecture, desacoplando o modelo de domínio das tecnologias de infraestrutura e banco de dados.
+*   **RNF-01: Ingestão Automática de Baixa Latência**: As medições recebidas pelo receptor USB devem ser processadas e refletidas nos painéis em menos de 1 segundo.
+*   **RNF-02: Imutabilidade dos Registros (Auditoria Industrial)**: Os registros de medição de temperatura (`Leitura`) são estritamente imutáveis. Não são permitidas operações de edição (`UPDATE`) ou remoção (`DELETE`) via API.
+*   **RNF-03: Operação Local On-Premises**: O sistema (Web App, API, Importador e Banco de Dados PostgreSQL) deve rodar 100% na rede local da fábrica da Rei Auto Parts, sem dependência de internet.
+*   **RNF-04: Tolerância a Falhas na Conexão USB/Excel**: Se o software do receptor temporariamente parar de gravar ou gerar o Excel, o sistema deve registrar o último timestamp de sincronização e emitir um alerta de desconexão.
+*   **RNF-05: Arquitetura Extensível (Clean Architecture)**: O sistema deve seguir o padrão Clean Architecture, mantendo a camada de Ingestão de Dados desacoplada da regra de negócios.
 
 ---
 
@@ -35,24 +35,27 @@ Este documento especifica os Requisitos Funcionais (RFs), Requisitos Não-Funcio
 
 ```mermaid
 graph TD
+    actorSoftwareUSB["📡 Software Receptor USB (Pirômetros)"]
     actorOperador["👷 Operador do Forno"]
     actorSupervisor["👨‍💼 Chefe / Supervisor"]
     
     subgraph SistemaFornoFundicao ["Sistema Forno Fundição"]
-        UC01["UC01: Selecionar Pirômetro e Etapa (Código 0-99)"]
-        UC02["UC02: Apontar Medição de Temperatura"]
-        UC03["UC03: Informar Rastreabilidade (Corrida, Lote, Panela)"]
-        UC04["UC04: Visualizar Alerta Térmico (Fora de Faixa)"]
-        UC05["UC05: Consultar Histórico e Relatório de Leituras"]
+        UC01["UC01: Ingerir Leitura Automática (DB / Excel Watcher)"]
+        UC02["UC02: Processar Faixa Térmica & Gerar Alerta"]
+        UC03["UC03: Vincular Rastreabilidade (Corrida, Lote, Panela)"]
+        UC04["UC04: Visualizar Painel de Leituras em Tempo Real"]
+        UC05["UC05: Consultar Histórico e Exportar Relatórios"]
         UC06["UC06: Configurar Códigos e Limites Térmicos"]
         UC07["UC07: Registrar Desgaste/Manutenção de Cadinho (Campanha)"]
     end
 
-    actorOperador --> UC01
-    actorOperador --> UC02
+    actorSoftwareUSB --> UC01
+    UC01 ..> UC02 : <<include>>
+
     actorOperador --> UC03
-    UC02 ..> UC04 : <<include>>
+    actorOperador --> UC04
     
+    actorSupervisor --> UC04
     actorSupervisor --> UC05
     actorSupervisor --> UC06
     actorSupervisor --> UC07
@@ -60,80 +63,46 @@ graph TD
 
 ---
 
-## 🔄 4. Diagrama de Sequência — Apontamento Manual de Temperatura
+## 🔄 4. Diagrama de Sequência — Ingestão Automática e Alerta em Tempo Real
 
-Este diagrama ilustra o fluxo completo de registro de uma leitura de temperatura, desde a interação do operador no formulário até a gravação imutável no banco de dados com alerta visual.
-
-```mermaid
-sequenceDiagram
-    autonumber
-    actor Operador as 👷 Operador
-    participant UI as 📱 Web Frontend
-    participant API as 🌐 API (FastAPI Controller)
-    participant UC as ⚙️ CadastrarLeituraUseCase
-    participant Repo as 💾 LeituraRepository (SQLModel)
-    participant DB as 🗄️ PostgreSQL
-
-    Operador->>UI: Seleciona Pirômetro, Código (Etapa), Temperatura e Rastreabilidade (Corrida/Panela)
-    UI->>API: POST /api/v1/leituras (payload)
-    API->>UC: execute(dto)
-    
-    UC->>Repo: buscar_codigo_pirometro(pirometro_id, codigo_id)
-    Repo->>DB: SELECT * FROM codigo_pirometro WHERE ...
-    DB-->>Repo: Dados do Código (temp_min, temp_max)
-    Repo-->>UC: Retorna CodigoPirometro
-
-    UC->>UC: Validar Faixa Térmica (temperatura < min ou > max?)
-    alt Temperatura Fora da Faixa
-        UC->>UC: Marcar flag alerta_temperatura = true
-    end
-
-    UC->>Repo: salvar_leitura(leitura_entity)
-    Repo->>DB: INSERT INTO leitura (...)
-    DB-->>Repo: Confirmação e ID gerado
-    Repo-->>UC: Retorna Leitura criada
-
-    UC-->>API: Retorna LeituraDTO + AlertaStatus
-    API-->>UI: 201 Created (JSON com alerta se houver)
-
-    alt Se alerta_temperatura == true
-        UI-->>Operador: Exibe Alerta Visual Amarelo/Vermelho ("Temperatura Fora do Esperado!")
-    else Temperatura Ok
-        UI-->>Operador: Exibe Confirmação Verde ("Medição Salva com Sucesso")
-    end
-```
-
----
-
-## 🔄 5. Diagrama de Sequência — Cadastro de Limites Térmicos por Pirômetro
-
-Este diagrama detalha como o Supervisor configura um novo código ou ajusta os limites térmicos de um pirômetro específico.
+Este diagrama ilustra o fluxo 100% automático onde o pirômetro faz a medição física, o receptor USB envia os dados ao software, e o nosso sistema processa, grava no PostgreSQL e notifica a fábrica.
 
 ```mermaid
 sequenceDiagram
     autonumber
-    actor Supervisor as 👨‍💼 Supervisor
-    participant UI as 💻 Admin Frontend
-    participant API as 🌐 API (FastAPI Controller)
-    participant UC as ⚙️ ConfigurarCodigoPirometroUseCase
-    participant Repo as 💾 PirometroRepository
+    actor Pirometro as 🌡️ Pirômetro Físico
+    participant SoftUSB as 💻 Software Receptor USB (PC da Chefe)
+    participant Ingestor as 🔄 Ingestor / Service (Nosso Backend)
+    participant UC as ⚙️ ProcessarLeituraAutomaticaUseCase
+    participant Repo as 💾 LeituraRepository
     participant DB as 🗄️ PostgreSQL
+    participant UI as 🖥️ Painel da Fábrica (Web Frontend)
 
-    Supervisor->>UI: Seleciona Pirômetro e define Código (ex: 5 - "Liberação de Forno", Min: 1500°C, Max: 1600°C)
-    UI->>API: POST /api/v1/pirometros/{id}/codigos
-    API->>UC: execute(dto)
-    
-    UC->>Repo: buscar_pirometro_por_id(id)
-    Repo->>DB: SELECT * FROM pirometro WHERE id = ...
-    DB-->>Repo: Dados do Pirômetro
-    Repo-->>UC: Retorna Pirometro
+    Pirometro->>SoftUSB: Transmite temperatura lida via Rádio/USB
+    alt Opção A: Software grava direto no Postgres
+        SoftUSB->>DB: INSERT INTO leitura (pirometro_id, temperatura, codigo_id)
+        DB-->>Ingestor: Evento/Trigger de nova linha inserida
+    else Opção B: Software atualiza planilha Excel
+        SoftUSB->>SoftUSB: Salva nova linha na planilha Excel
+        Ingestor->>SoftUSB: File Watcher detecta modificação no Excel e lê a nova linha
+    end
 
-    UC->>Repo: salvar_codigo_pirometro(codigo_entity)
-    Repo->>DB: INSERT INTO codigo_pirometro (...)
+    Ingestor->>UC: processar_leitura(pirometro_id, codigo_id, temperatura)
+    UC->>Repo: buscar_limites_codigo(pirometro_id, codigo_id)
+    Repo->>DB: SELECT temp_min, temp_max FROM codigo_pirometro ...
+    DB-->>Repo: Limites retornados
+    Repo-->>UC: Limites de Temperatura
+
+    UC->>UC: Validar se temperatura está fora da faixa esperada
+    UC->>Repo: salvar_leitura_processada(leitura)
+    Repo->>DB: Atualiza/Confirma registro no PostgreSQL
     DB-->>Repo: Sucesso
-    Repo-->>UC: Retorna CodigoPirometro
 
-    UC-->>API: Retorna DTO Criado
-    API-->>UI: 201 Created
-    UI-->>Supervisor: Exibe Mensagem ("Código e Limites Atualizados")
+    UC->>UI: WebSocket / Push SSE com a Nova Medição + Alerta (se houver)
+
+    alt Se Temperatura Fora da Faixa
+        UI-->>UI: Destaca Painel em Vermelho/Amarelo + Alerta Sonoro!
+    else Temperatura Normal
+        UI-->>UI: Atualiza Mostrador do Forno em Verde
+    end
 ```
