@@ -1,48 +1,47 @@
-# Arquitetura proposta (fase 1 — pirômetros)
+# 🏛️ Arquitetura do Sistema — Ingestão Automática Direct-to-DB (24/7)
 
-## Formato: aplicativo web local
+## 💡 Princípios de Arquitetura Confirmados
 
-Decisão confirmada: app web rodando localmente na rede da fábrica, com banco
-de dados. A chefe já tem um PC que "oferece conexão a um banco de dados" —
-vale confirmar (ver perguntas abertas) se isso é um SQL Server / Access / outro
-já instalado, para decidir se aproveitamos ou subimos um banco novo (ex.
-PostgreSQL) num serviço simples.
+1. **Ingestão 100% Automática (Sem Apontamento Manual)**: Os pirômetros transmitem os dados via rádio para o receptor USB.
+2. **Conexão Direta ao Banco (Opção A Exclusiva)**: O software do receptor USB insere diretamente as medições no banco de dados PostgreSQL.
+3. **Opções de Hospedagem do Banco (Local vs VPS na Nuvem)**:
+   - **Opção Local**: Banco PostgreSQL rodando em um servidor/PC 24/7 na rede interna da fábrica.
+   - **Opção VPS (Nuvem - Recomendado)**: Banco PostgreSQL rodando em uma VPS (ex: DigitalOcean, AWS, Hetzner, Linode) com IP público/VPN e criptografia SSL.
 
-Proposta de componentes, do mais simples para o mais completo — começar pelo nível 1:
+---
 
-1. **Nível 1 (MVP)**: formulário web simples (rodando num PC/servidor da rede
-   local) onde o operador escolhe o pirômetro, escolhe o código (0–99, já
-   traduzido para o nome da etapa daquele pirômetro), digita a temperatura
-   lida, e salva. Lista/relatório simples de leituras do dia por pirômetro.
-2. **Nível 2**: amarrar cada leitura a uma "corrida" ou "lote" de fundição
-   (para saber depois qual peça saiu de qual conjunto de medições).
-3. **Nível 3**: alertas automáticos quando a temperatura sai da faixa esperada
-   para aquele código/etapa; dashboards por setor/turno/operador.
+## ☁️ Como Funciona a Hospedagem em VPS
 
-## Por que começar simples
+Se o banco de dados e a API estiverem hospedados em uma VPS na nuvem:
 
-O pedido original do chefe foi só "um sistema para os pirômetros". Não expandir
-escopo (cardans, espectrômetros, CLPs) até o nível 1 estar rodando e validado
-com os operadores. Resiliência a novos pirômetros já está coberta pelo modelo
-de dados (tabela `pirometro` + `codigo_pirometro`), não precisa de
-complexidade extra de infraestrutura para isso.
+```
+ [4 Pirômetros Físicos]
+          │ (Rádio)
+          ▼
+ [PC Host com Receptor USB na Fábrica]
+          │
+          │ (Internet Segura - SSL/TLS na porta 5432)
+          ▼
+ ┌─────────────────────────────────────────────────────────────┐
+ │ ☁️ VPS na Nuvem (DigitalOcean / AWS / Hetzner / Linode)     │
+ │                                                             │
+ │   - IP Público / Domínio (ex: db.reiautoparts.com)           │
+ │   - PostgreSQL 16 (Porta 5432 com SSL ativo)                │
+ │   - API FastAPI (Container Docker em Produção)              │
+ └────────┬────────────────────────────────────────────────────┘
+          │
+          ├──► 📱 Dashboard Acessível de Qualquer Lugar (Casa, Celular, Fábrica)
+          └──► 💾 Backups Automáticos 24/7 pela Provedora da VPS
+```
 
-## Rede e acesso
+---
 
-- 4 pirômetros hoje, sem indicação de que os próprios aparelhos tenham saída
-  de rede/API — a leitura hoje é manual (operador lê o mostrador do
-  pirômetro e digita em algum lugar). Confirmar isso antes de imaginar
-  integração automática (alguns pirômetros industriais têm saída RS-485/4-20mA/
-  Modbus, mas isso é outro projeto).
-- O sistema, nesta fase, é primariamente um **formulário de apontamento
-  manual** + banco de dados + relatórios. Não pressupor leitura automática do
-  instrumento.
+## 🔒 Requisitos para Conectar o Software da Fábrica à VPS
 
-## CLPs dos fornos (nota, não escopo da fase 1)
-
-O usuário mencionou que os fornos têm CLPs e que talvez dê pra conectá-los à
-rede e puxar dados deles. Isso é tecnicamente viável (a maioria dos CLPs
-industriais fala Modbus TCP/RTU, Profinet, ou tem gateway OPC-UA), mas é um
-projeto à parte, com riscos de segurança/operação (rede de automação
-normalmente é segregada da rede de escritório por boas razões). Não misturar
-com a entrega dos pirômetros — registrar como possível fase futura.
+Para o software do receptor USB gravar direto no banco na VPS:
+1. **Credenciais no Software**: No PC da fábrica, configura-se no software:
+   * **Host**: IP ou Domínio da VPS (ex: `203.0.113.50` ou `db.reiautoparts.com`).
+   * **Porta**: `5432`.
+   * **Usuário / Senha / Banco**: Credenciais do PostgreSQL da VPS.
+2. **Segurança (Firewall & SSL)**: Liberar no Firewall da VPS o acesso ao PostgreSQL e ativar conexão criptografada (SSL/TLS).
+3. **Resiliência a Quedas de Internet**: Caso a internet da fábrica caia temporariamente, a maioria dos softwares de receptores industriais acumula as medições em buffer local e descarrega tudo no banco na VPS assim que a conexão reconecta.
