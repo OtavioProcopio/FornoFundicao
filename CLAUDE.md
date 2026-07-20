@@ -5,7 +5,7 @@ Parts (ver `docs/00-visao-geral.md` para o contexto completo do negócio).
 
 ## Antes de trabalhar
 
-1. Leia `docs/00-visao-geral.md` a `docs/project-board.md` pra entender o domínio.
+1. Leia `docs/00-visao-geral.md` a `docs/07-especificacao-completa-do-produto.md` pra entender o domínio.
 2. Leia a política de **Governança** em `docs/governanca.md` (regras e limites do projeto).
 3. Leia `docs/git-workflow.md` — este repo segue Git Flow (`main`/`develop`/`feature`/`release`/`hotfix`).
 4. Leia `docs/automacao-ci.md` pra entender o ciclo issue → PR → fechamento automático antes de abrir uma PR.
