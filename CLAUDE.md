@@ -5,13 +5,10 @@ Parts (ver `docs/00-visao-geral.md` para o contexto completo do negócio).
 
 ## Antes de trabalhar
 
-1. Leia `docs/00-visao-geral.md` a `docs/04-perguntas-abertas.md` pra entender
-   o domínio (pirômetros, codificação 0–99, setores de fundição).
-2. Leia `docs/git-workflow.md` — este repo segue Git Flow (`main`/`develop`/
-   `feature`/`release`/`hotfix`), não é livre pra commitar direto em `main`
-   ou `develop`.
-3. Leia `docs/automacao-ci.md` pra entender o ciclo issue → PR → fechamento
-   automático antes de abrir uma PR.
+1. Leia `docs/00-visao-geral.md` a `docs/04-perguntas-abertas.md` pra entender o domínio.
+2. Leia a política de **Governança** em `docs/governanca.md` (regras e limites do projeto).
+3. Leia `docs/git-workflow.md` — este repo segue Git Flow (`main`/`develop`/`feature`/`release`/`hotfix`).
+4. Leia `docs/automacao-ci.md` pra entender o ciclo issue → PR → fechamento automático antes de abrir uma PR.
 
 ## Ferramental — SEMPRE use o devcontainer/Makefile
 
@@ -68,10 +65,10 @@ app/api.py              → Bootstrap do FastAPI, inclui /health
 - Rodar `make build && make lint && make test` dentro de `app/` antes de
   abrir PR (ver `app/Makefile`).
 
-## O que NÃO fazer
+## O que NÃO fazer (Governança)
 
 - Não commitar `.env` real, senha, token ou chave.
-- Não misturar escopo de pirômetros com o escopo futuro de espectrômetros
-  (`docs/03-espectrometros.md`) ou CLPs — são fases separadas.
-- Não fixar a lista de pirômetros em código — é dado (tabela `pirometro` +
-  `codigo_pirometro`), não constante (ver `docs/01-pirometros.md`).
+- Não misturar escopo de pirômetros com espectrômetros (`docs/03-espectrometros.md`) ou CLPs.
+- Não fixar a lista de pirômetros em código — é dado de banco (tabela `pirometro`), não constante.
+- Não alterar banco de dados manualmente — sempre via migrations do Alembic.
+- Não acessar o banco diretamente do controller — sempre passe pela camada de UseCase e Repository.

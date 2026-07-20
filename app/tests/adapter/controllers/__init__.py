@@ -1,0 +1,1 @@
+# Adapter controllers tests package
