@@ -28,20 +28,20 @@ graph LR
 ### 📦 PR #1 (Infra / Data Access Layer): `feat/repositories-pirometro-leitura`
 *   **Issues Relacionadas**: [#3](https://github.com/OtavioProcopio/FornoFundicao/issues/3) (`feat: [INFRA] Repositórios Concretos`)
 *   **Tarefas de Código**:
-    *   [ ] Definir `IPirometroRepository` e `ILeituraRepository` na camada de interfaces (`app/core/interfaces/adapters/repositories/`).
-    *   [ ] Implementar `PirometroRepository` e `LeituraRepository` usando SQLModel em `app/adapter/repositories/`.
-    *   [ ] Escrever testes unitários/integração dos repositórios em `app/tests/adapter/repositories/`.
-*   **Critério de Aceite**: `make validate` com 100% de sucesso e sem erros de lint/mypy.
+    *   [x] Definir `IPirometroRepository` e `ILeituraRepository` na camada de interfaces (`app/core/interfaces/adapters/repositories/`).
+    *   [x] Implementar `PirometroRepository` e `LeituraRepository` usando SQLModel em `app/adapter/repositories/`.
+    *   [x] Escrever testes unitários/integração dos repositórios em `app/tests/adapter/repositories/`.
+*   **Status**: Concluído no PR #22.
 
 ---
 
 ### ⚙️ PR #2 (Application Layer / Business Logic): `feat/use-cases-cadastrar-listar-leitura`
 *   **Issues Relacionadas**: [#4](https://github.com/OtavioProcopio/FornoFundicao/issues/4) (`Casos de Uso Core`) e [#13](https://github.com/OtavioProcopio/FornoFundicao/issues/13) (`Ingestor e Validação Térmica em Tempo Real`)
 *   **Tarefas de Código**:
-    *   [ ] Criar `CadastrarLeituraUseCase` em `app/core/application/use_cases/` (calcula faixas térmicas `temp_min`/`temp_max` e aciona alerta visual).
-    *   [ ] Criar `ListarLeiturasDoDiaUseCase` com suporte a filtros por pirômetro, corrida e panela.
-    *   [ ] Escrever testes de unidade dos casos de uso em `app/tests/core/application/`.
-*   **Critério de Aceite**: Validação de faixas de temperatura testadas isoladamente.
+    *   [x] Criar `VincularContextoLeituraUseCase` em `app/core/application/use_cases/` (atualiza dados de rastreabilidade).
+    *   [x] Criar `ObterLeiturasProcessadasUseCase` em `app/core/application/use_cases/` (traduz códigos e valida faixas térmicas).
+    *   [x] Escrever testes de unidade dos casos de uso em `app/tests/core/application/`.
+*   **Status**: Concluído no PR #22.
 
 ---
 
@@ -50,7 +50,7 @@ graph LR
 *   **Tarefas de Código**:
     *   [ ] Criar `PirometroController` e `LeituraController` em `app/adapter/controllers/`.
     *   [ ] Registrar injeção de dependências no contêiner `infra/config/container.py`.
-    *   [ ] Expor as rotas REST em `api.py` (`GET /api/v1/pirometros`, `POST /api/v1/leituras`, etc.).
+    *   [ ] Expor as rotas REST em `api.py` (`GET /api/v1/pirometros`, `PATCH /api/v1/leituras/{id}`, etc.).
     *   [ ] Escrever testes de integração de API em `app/tests/api/`.
 *   **Critério de Aceite**: API pronta e respondendo aos testes de integração com cobertura > 90%.
 
@@ -63,5 +63,6 @@ graph LR
 |---|---|---|---|
 | **#1** | `feat` | API mínima FastAPI com `/health` e CI/CD. | PR #1 |
 | **#2** | `feat` | Modelos de banco SQLModel (`Pirometro`, `CodigoPirometro`, `Leitura`) + Alembic. | PR #15 (Closes #2) |
+| **#3** | `infra` | Repositórios concretos de dados em `adapter/repositories/`. | PR #22 (Closes #3) |
 | **#6** | `test` | Suíte de testes em `app/tests/` (Clean Arch) com 99.03% cobertura. | PR #14 (Closes #6) |
 | **#10** | `docs` | Requisitos, diagramas de sequência, especificação Direct-to-DB e guia do receptor USB 24/7. | PR #16 (Closes #10) |
