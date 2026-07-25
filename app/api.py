@@ -2,6 +2,8 @@ import uvicorn
 from fastapi import FastAPI, Request
 from sqlmodel import Session
 
+from adapter.controllers.leitura_controller import router as leitura_router
+from adapter.controllers.pirometro_controller import router as pirometro_router
 from infra.config.container import Container
 from infra.config.context import db_session_context
 from infra.config.database import run_migrations
@@ -13,6 +15,12 @@ def create_app() -> FastAPI:
         run_migrations()
 
     container = Container()
+    container.wire(
+        modules=[
+            "adapter.controllers.pirometro_controller",
+            "adapter.controllers.leitura_controller",
+        ]
+    )
 
     app = FastAPI(
         title="Forno Fundicao API",
@@ -21,6 +29,9 @@ def create_app() -> FastAPI:
     )
 
     app.container = container  # type: ignore[attr-defined]
+
+    app.include_router(pirometro_router)
+    app.include_router(leitura_router)
 
     @app.middleware("http")
     async def db_session_middleware(request: Request, call_next):
