@@ -77,6 +77,18 @@ graph LR
 
 ---
 
+### 🔥 PR #6 (Fase 2: Gestão da Campanha do Forno e Desgaste de Cadinhos): `feat/gestao-campanha-cadinho`
+*   **Tarefas de Código**:
+    *   [x] Definir modelos SQLModel `Cadinho` e `RegistroDesgasteCadinho` em `app/core/domain/models.py`.
+    *   [x] Criar migration Alembic `a1b2c3d4e5f6_add_cadinho_and_desgaste_tables.py` em `app/migrations/versions/`.
+    *   [x] Definir interface `ICadinhoRepository` e repositório concreto `CadinhoRepository`.
+    *   [x] Criar casos de uso `CadastrarCadinhoUseCase`, `RegistrarDesgasteCadinhoUseCase` e `ObterStatusCampanhaUseCase`.
+    *   [x] Criar `CadinhoController` (`POST /api/v1/cadinhos`, `GET /api/v1/cadinhos`, `POST /api/v1/cadinhos/{id}/desgaste`).
+    *   [x] Escrever testes unitários e de integração em `app/tests/`.
+*   **Status**: Concluído na branch `feat/gestao-campanha-cadinho`.
+
+---
+
 ## 📋 Quadro Kanban do Projeto
 
 ### 🟢 Concluído (Done)
@@ -88,6 +100,7 @@ graph LR
 | **#4** | `feat` | Casos de uso core para processar leituras e associar contexto. | PR #22 |
 | **#5** | `feat` | Endpoints REST de controle para pirômetros, etapas e leituras. | PR #24 (Closes #5) |
 | **#6** | `test` | Suíte de testes em `app/tests/` (Clean Arch) com 99.03% cobertura. | PR #14 (Closes #6) |
+| **#7** | `feat` | Gestão da Campanha do Forno e Medição de Desgaste Refratário de Cadinhos. | `feat/gestao-campanha-cadinho` |
 | **#10** | `docs` | Requisitos, diagramas de sequência, especificação Direct-to-DB e guia do receptor USB 24/7. | PR #16 (Closes #10) |
 | **#11** | `arch` | Rastreabilidade de corridas, lotes e panelas (ladles) via PATCH. | PR #24 (Closes #11) |
 | **#13** | `feat` | Ingestão e processamento de leituras com tradução automática. | PR #22 |
