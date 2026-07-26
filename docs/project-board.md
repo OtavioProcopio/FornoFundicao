@@ -66,6 +66,17 @@ graph LR
 
 ---
 
+### ⚡ PR #5 (Real-time WebSockets & Background DB Monitor): `feat/websocket-realtime-broadcast`
+*   **Tarefas de Código**:
+    *   [x] Criar `WebSocketManager` em `app/infra/tools/websocket_manager.py` para gerenciamento de conexões ativas.
+    *   [x] Implementar `monitor_database` em `app/infra/tools/db_monitor.py` para capturar novas leituras e transmitir via WebSocket.
+    *   [x] Expor endpoint `/api/v1/leituras/ws` no `LeituraController`.
+    *   [x] Registrar rotina background na inicialização (`startup`) da API.
+    *   [x] Criar suíte de testes de transmissão em tempo real em `app/tests/api/test_websocket.py`.
+*   **Status**: Concluído na branch `feat/websocket-realtime-broadcast`.
+
+---
+
 ## 📋 Quadro Kanban do Projeto
 
 ### 🟢 Concluído (Done)
@@ -81,3 +92,4 @@ graph LR
 | **#11** | `arch` | Rastreabilidade de corridas, lotes e panelas (ladles) via PATCH. | PR #24 (Closes #11) |
 | **#13** | `feat` | Ingestão e processamento de leituras com tradução automática. | PR #22 |
 | **#14** | `feat` | Dashboard API unificada servindo métricas operacionais, de qualidade e gerenciais. | PR #26 |
+| **#15** | `feat` | Transmissão em tempo real via WebSockets (`/api/v1/leituras/ws`) e monitor de banco. | `feat/websocket-realtime-broadcast` |
