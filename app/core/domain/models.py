@@ -18,6 +18,7 @@ class Pirometro(SQLModel, table=True):
     # Relacionamentos
     codigos: List["CodigoPirometro"] = Relationship(back_populates="pirometro")
     leituras: List["Leitura"] = Relationship(back_populates="pirometro")
+    cadinhos: List["Cadinho"] = Relationship(back_populates="pirometro")
 
 
 class CodigoPirometro(SQLModel, table=True):
@@ -58,3 +59,41 @@ class Leitura(SQLModel, table=True):
     # Relacionamentos
     pirometro: Pirometro = Relationship(back_populates="leituras")
     codigo_pirometro: CodigoPirometro = Relationship(back_populates="leituras")
+
+
+class Cadinho(SQLModel, table=True):
+    __tablename__ = "cadinho"
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    pirometro_id: str = Field(foreign_key="pirometro.id")
+    codigo_identificador: str
+    espessura_inicial_mm: float
+    espessura_atual_mm: float
+    espessura_minima_seguranca_mm: float = Field(default=50.0)
+    corridas_acumuladas: int = Field(default=0)
+    max_corridas_esperadas: Optional[int] = Field(default=200)
+    data_instalacao: datetime = Field(default_factory=datetime.utcnow)
+    data_substituicao: Optional[datetime] = Field(default=None)
+    status: str = Field(default="ATIVO")
+    observacao: Optional[str] = Field(default=None)
+
+    # Relacionamentos
+    pirometro: Pirometro = Relationship(back_populates="cadinhos")
+    registros_desgaste: List["RegistroDesgasteCadinho"] = Relationship(
+        back_populates="cadinho"
+    )
+
+
+class RegistroDesgasteCadinho(SQLModel, table=True):
+    __tablename__ = "registro_desgaste_cadinho"
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    cadinho_id: int = Field(foreign_key="cadinho.id")
+    espessura_medida_mm: float
+    corridas_no_momento: Optional[int] = Field(default=None)
+    operador_id: Optional[str] = Field(default=None)
+    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    observacao: Optional[str] = Field(default=None)
+
+    # Relacionamentos
+    cadinho: Cadinho = Relationship(back_populates="registros_desgaste")

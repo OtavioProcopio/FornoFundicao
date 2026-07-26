@@ -2,6 +2,7 @@ import uvicorn
 from fastapi import FastAPI, Request
 from sqlmodel import Session
 
+from adapter.controllers.cadinho_controller import router as cadinho_router
 from adapter.controllers.dashboard_controller import router as dashboard_router
 from adapter.controllers.leitura_controller import router as leitura_router
 from adapter.controllers.pirometro_controller import router as pirometro_router
@@ -26,6 +27,7 @@ def create_app() -> FastAPI:
             "adapter.controllers.pirometro_controller",
             "adapter.controllers.leitura_controller",
             "adapter.controllers.dashboard_controller",
+            "adapter.controllers.cadinho_controller",
         ]
     )
 
@@ -40,6 +42,7 @@ def create_app() -> FastAPI:
     app.include_router(pirometro_router)
     app.include_router(leitura_router)
     app.include_router(dashboard_router)
+    app.include_router(cadinho_router)
 
     @app.on_event("startup")
     async def startup_event():
