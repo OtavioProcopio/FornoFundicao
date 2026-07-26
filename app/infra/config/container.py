@@ -9,6 +9,9 @@ from core.application.use_cases.cadastrar_pirometro import (
 from core.application.use_cases.configurar_codigo_pirometro import (
     ConfigurarCodigoPirometroUseCase,
 )
+from core.application.use_cases.gerar_dados_dashboard import (
+    GerarDadosDashboardUseCase,
+)
 from core.application.use_cases.listar_pirometros import ListarPirometrosUseCase
 from core.application.use_cases.obter_leituras_processadas import (
     ObterLeiturasProcessadasUseCase,
@@ -53,6 +56,11 @@ class Container(containers.DeclarativeContainer):
     )
     obter_leituras_processadas_use_case = providers.Factory(
         ObterLeiturasProcessadasUseCase,
+        leitura_repo=leitura_repo,
+        pirometro_repo=pirometro_repo,
+    )
+    gerar_dados_dashboard_use_case = providers.Factory(
+        GerarDadosDashboardUseCase,
         leitura_repo=leitura_repo,
         pirometro_repo=pirometro_repo,
     )
