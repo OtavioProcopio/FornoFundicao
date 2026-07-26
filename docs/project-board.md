@@ -29,7 +29,7 @@ graph LR
 *   **Issues Relacionadas**: [#3](https://github.com/OtavioProcopio/FornoFundicao/issues/3) (`feat: [INFRA] Repositórios Concretos`)
 *   **Tarefas de Código**:
     *   [x] Definir `IPirometroRepository` e `ILeituraRepository` na camada de interfaces (`app/core/interfaces/adapters/repositories/`).
-    *   [x] Implementar `PirometroRepository` e `LeituraRepository` usando SQLModel em `app/adapter/repositories/`.
+    *   [x] Implementar `PirometroRepository` e `LeituraRepository` usando SQLModel in `app/adapter/repositories/`.
     *   [x] Escrever testes unitários/integração dos repositórios em `app/tests/adapter/repositories/`.
 *   **Status**: Concluído no PR #22.
 
@@ -56,6 +56,16 @@ graph LR
 
 ---
 
+### 📊 PR #4 (Dashboard Core Metrics): `feat/dashboard-metrics-and-endpoints`
+*   **Tarefas de Código**:
+    *   [x] Criar `GerarDadosDashboardUseCase` com métricas consolidadas em 3 níveis (Operacional, Qualidade e Gerencial).
+    *   [x] Criar `DashboardController` e expor rota `GET /api/v1/dashboard`.
+    *   [x] Registrar injeção e realizar fiação na API.
+    *   [x] Escrever testes de unidade e integração.
+*   **Status**: Concluído no PR #26.
+
+---
+
 ## 📋 Quadro Kanban do Projeto
 
 ### 🟢 Concluído (Done)
@@ -70,3 +80,4 @@ graph LR
 | **#10** | `docs` | Requisitos, diagramas de sequência, especificação Direct-to-DB e guia do receptor USB 24/7. | PR #16 (Closes #10) |
 | **#11** | `arch` | Rastreabilidade de corridas, lotes e panelas (ladles) via PATCH. | PR #24 (Closes #11) |
 | **#13** | `feat` | Ingestão e processamento de leituras com tradução automática. | PR #22 |
+| **#14** | `feat` | Dashboard API unificada servindo métricas operacionais, de qualidade e gerenciais. | PR #26 |
