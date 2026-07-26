@@ -89,6 +89,19 @@ graph LR
 
 ---
 
+### 🏭 PR #7 (Entidade Forno & Gestão Multi-Cadinhos até 4 unidades): `feat/entidade-forno-e-gestao-multicadinho`
+*   **Tarefas de Código**:
+    *   [x] Criar entidade SQLModel `Forno` em `app/core/domain/models.py` com suporte a relacionamentos de pirômetros e cadinhos.
+    *   [x] Atualizar `Cadinho` com campos `forno_id` e `posicao_no_forno` (posições 1 a 4).
+    *   [x] Criar migration Alembic `b2c3d4e5f6a7_add_forno_entity_and_cadinho_relations.py`.
+    *   [x] Criar interface `IFornoRepository` e repositório concreto `FornoRepository`.
+    *   [x] Implementar casos de uso `CadastrarFornoUseCase`, `GerenciarCadinhosFornoUseCase` (com trava de limite máximo de 4 cadinhos por forno e posições livres), e `ListarFornosECadinhosUseCase`.
+    *   [x] Criar `FornoController` (`POST /api/v1/fornos`, `GET /api/v1/fornos`, `POST /api/v1/fornos/{id}/cadinhos`, `PUT`, `DELETE`).
+    *   [x] Escrever testes unitários e de integração em `app/tests/`.
+*   **Status**: Concluído na branch `feat/entidade-forno-e-gestao-multicadinho`.
+
+---
+
 ## 📋 Quadro Kanban do Projeto
 
 ### 🟢 Concluído (Done)
@@ -101,6 +114,7 @@ graph LR
 | **#5** | `feat` | Endpoints REST de controle para pirômetros, etapas e leituras. | PR #24 (Closes #5) |
 | **#6** | `test` | Suíte de testes em `app/tests/` (Clean Arch) com 99.03% cobertura. | PR #14 (Closes #6) |
 | **#7** | `feat` | Gestão da Campanha do Forno e Medição de Desgaste Refratário de Cadinhos. | `feat/gestao-campanha-cadinho` |
+| **#8** | `feat` | Entidade dedicada `Forno` e gestão multi-cadinhos (até 4 posições independentes por forno). | `feat/entidade-forno-e-gestao-multicadinho` |
 | **#10** | `docs` | Requisitos, diagramas de sequência, especificação Direct-to-DB e guia do receptor USB 24/7. | PR #16 (Closes #10) |
 | **#11** | `arch` | Rastreabilidade de corridas, lotes e panelas (ladles) via PATCH. | PR #24 (Closes #11) |
 | **#13** | `feat` | Ingestão e processamento de leituras com tradução automática. | PR #22 |
