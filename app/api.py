@@ -14,6 +14,11 @@ from infra.config.settings import settings
 def create_app() -> FastAPI:
     if settings.RUN_MIGRATIONS:
         run_migrations()
+        from infra.config.database import engine
+        from infra.config.seed import seed_data
+
+        with Session(engine) as session:
+            seed_data(session)
 
     container = Container()
     container.wire(
