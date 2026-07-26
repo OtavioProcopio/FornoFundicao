@@ -67,9 +67,7 @@ class CadinhoRepository(ICadinhoRepository):
         self.session.refresh(registro)
         return registro
 
-    def list_registros_desgaste(
-        self, cadinho_id: int
-    ) -> List[RegistroDesgasteCadinho]:
+    def list_registros_desgaste(self, cadinho_id: int) -> List[RegistroDesgasteCadinho]:
         statement = (
             select(RegistroDesgasteCadinho)
             .where(RegistroDesgasteCadinho.cadinho_id == cadinho_id)

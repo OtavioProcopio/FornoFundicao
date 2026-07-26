@@ -31,17 +31,14 @@ class ListarFornosECadinhosUseCase:
 
             for cadinho in active_cadinhos:
                 den = (
-                    cadinho.espessura_inicial_mm
-                    - cadinho.espessura_minima_seguranca_mm
+                    cadinho.espessura_inicial_mm - cadinho.espessura_minima_seguranca_mm
                 )
                 if den > 0:
                     num = (
                         cadinho.espessura_atual_mm
                         - cadinho.espessura_minima_seguranca_mm
                     )
-                    pct_refratario = round(
-                        max(0.0, min(100.0, (num / den) * 100)), 2
-                    )
+                    pct_refratario = round(max(0.0, min(100.0, (num / den) * 100)), 2)
                 else:
                     pct_refratario = 0.0
 

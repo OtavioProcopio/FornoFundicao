@@ -36,9 +36,7 @@ def upgrade() -> None:
 
     with op.batch_alter_table("pirometro") as batch_op:
         batch_op.add_column(sa.Column("forno_id", sa.Integer(), nullable=True))
-        batch_op.create_foreign_key(
-            "fk_pirometro_forno", "forno", ["forno_id"], ["id"]
-        )
+        batch_op.create_foreign_key("fk_pirometro_forno", "forno", ["forno_id"], ["id"])
 
     with op.batch_alter_table("cadinho") as batch_op:
         batch_op.add_column(sa.Column("forno_id", sa.Integer(), nullable=True))

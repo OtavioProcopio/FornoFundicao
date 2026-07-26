@@ -41,7 +41,5 @@ class ICadinhoRepository(ABC):
         pass
 
     @abstractmethod
-    def list_registros_desgaste(
-        self, cadinho_id: int
-    ) -> List[RegistroDesgasteCadinho]:
+    def list_registros_desgaste(self, cadinho_id: int) -> List[RegistroDesgasteCadinho]:
         pass

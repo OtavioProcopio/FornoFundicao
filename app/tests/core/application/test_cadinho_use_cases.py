@@ -35,9 +35,7 @@ def test_cadastrar_cadinho_use_case_success(session):
         )
     )
 
-    use_case = CadastrarCadinhoUseCase(
-        cadinho_repo=cad_repo, pirometro_repo=pir_repo
-    )
+    use_case = CadastrarCadinhoUseCase(cadinho_repo=cad_repo, pirometro_repo=pir_repo)
     cadinho = use_case.execute(
         {
             "pirometro_id": "PIR-01",
@@ -55,9 +53,7 @@ def test_cadastrar_cadinho_use_case_success(session):
 def test_cadastrar_cadinho_use_case_invalid_pirometro(session):
     pir_repo = PirometroRepository(session=session)
     cad_repo = CadinhoRepository(session=session)
-    use_case = CadastrarCadinhoUseCase(
-        cadinho_repo=cad_repo, pirometro_repo=pir_repo
-    )
+    use_case = CadastrarCadinhoUseCase(cadinho_repo=cad_repo, pirometro_repo=pir_repo)
 
     with pytest.raises(ValueError, match="não encontrado"):
         use_case.execute(
@@ -83,9 +79,7 @@ def test_registrar_desgaste_cadinho_use_case_and_alert(session):
         )
     )
 
-    cad_uc = CadastrarCadinhoUseCase(
-        cadinho_repo=cad_repo, pirometro_repo=pir_repo
-    )
+    cad_uc = CadastrarCadinhoUseCase(cadinho_repo=cad_repo, pirometro_repo=pir_repo)
     cadinho = cad_uc.execute(
         {
             "pirometro_id": "PIR-01",
@@ -139,9 +133,7 @@ def test_obter_status_campanha_use_case(session):
         )
     )
 
-    cad_uc = CadastrarCadinhoUseCase(
-        cadinho_repo=cad_repo, pirometro_repo=pir_repo
-    )
+    cad_uc = CadastrarCadinhoUseCase(cadinho_repo=cad_repo, pirometro_repo=pir_repo)
     cadinho = cad_uc.execute(
         {
             "pirometro_id": "PIR-01",
