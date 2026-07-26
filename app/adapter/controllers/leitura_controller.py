@@ -2,7 +2,14 @@ from datetime import datetime
 from typing import Optional
 
 from dependency_injector.wiring import Provide, inject
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import (
+    APIRouter,
+    Depends,
+    HTTPException,
+    WebSocket,
+    WebSocketDisconnect,
+    status,
+)
 from pydantic import BaseModel
 
 from core.application.use_cases.obter_leituras_processadas import (
@@ -12,6 +19,7 @@ from core.application.use_cases.vincular_contexto_leitura import (
     VincularContextoLeituraUseCase,
 )
 from infra.config.container import Container
+from infra.tools.websocket_manager import websocket_manager
 
 router = APIRouter(prefix="/api/v1/leituras", tags=["Leituras"])
 
@@ -61,3 +69,14 @@ def update_contexto(
         return use_case.execute(id, contexto_data)
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+
+
+@router.websocket("/ws")
+async def websocket_endpoint(websocket: WebSocket):
+    await websocket_manager.connect(websocket)
+    try:
+        while True:
+            # Manter a conexão ativa
+            await websocket.receive_text()
+    except WebSocketDisconnect:
+        websocket_manager.disconnect(websocket)

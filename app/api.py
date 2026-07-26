@@ -41,6 +41,14 @@ def create_app() -> FastAPI:
     app.include_router(leitura_router)
     app.include_router(dashboard_router)
 
+    @app.on_event("startup")
+    async def startup_event():
+        import asyncio
+
+        from infra.tools.db_monitor import monitor_database
+
+        asyncio.create_task(monitor_database(get_engine=container.engine))
+
     @app.middleware("http")
     async def db_session_middleware(request: Request, call_next):
         engine = container.engine()
