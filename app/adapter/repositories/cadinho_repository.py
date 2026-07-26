@@ -22,11 +22,28 @@ class CadinhoRepository(ICadinhoRepository):
     def get_by_id(self, cadinho_id: int) -> Optional[Cadinho]:
         return self.session.get(Cadinho, cadinho_id)
 
-    def list_all(self, pirometro_id: Optional[str] = None) -> List[Cadinho]:
+    def list_all(
+        self,
+        pirometro_id: Optional[str] = None,
+        forno_id: Optional[int] = None,
+    ) -> List[Cadinho]:
         statement = select(Cadinho)
         if pirometro_id:
             statement = statement.where(Cadinho.pirometro_id == pirometro_id)
+        if forno_id is not None:
+            statement = statement.where(Cadinho.forno_id == forno_id)
         statement = statement.order_by(col(Cadinho.id).desc())
+        return list(self.session.exec(statement).all())
+
+    def list_active_by_forno(self, forno_id: int) -> List[Cadinho]:
+        statement = (
+            select(Cadinho)
+            .where(
+                Cadinho.forno_id == forno_id,
+                Cadinho.status.in_(["ATIVO", "ALERTA"]),  # type: ignore[attr-defined]
+            )
+            .order_by(col(Cadinho.posicao_no_forno).asc())
+        )
         return list(self.session.exec(statement).all())
 
     def get_ativo_by_pirometro(self, pirometro_id: str) -> Optional[Cadinho]:

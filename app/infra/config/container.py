@@ -2,9 +2,11 @@ from dependency_injector import containers, providers
 from sqlmodel import Session, create_engine
 
 from adapter.repositories.cadinho_repository import CadinhoRepository
+from adapter.repositories.forno_repository import FornoRepository
 from adapter.repositories.leitura_repository import LeituraRepository
 from adapter.repositories.pirometro_repository import PirometroRepository
 from core.application.use_cases.cadastrar_cadinho import CadastrarCadinhoUseCase
+from core.application.use_cases.cadastrar_forno import CadastrarFornoUseCase
 from core.application.use_cases.cadastrar_pirometro import (
     CadastrarPirometroUseCase,
 )
@@ -13,6 +15,12 @@ from core.application.use_cases.configurar_codigo_pirometro import (
 )
 from core.application.use_cases.gerar_dados_dashboard import (
     GerarDadosDashboardUseCase,
+)
+from core.application.use_cases.gerenciar_cadinhos_forno import (
+    GerenciarCadinhosFornoUseCase,
+)
+from core.application.use_cases.listar_fornos import (
+    ListarFornosECadinhosUseCase,
 )
 from core.application.use_cases.listar_pirometros import ListarPirometrosUseCase
 from core.application.use_cases.obter_leituras_processadas import (
@@ -50,6 +58,7 @@ class Container(containers.DeclarativeContainer):
     pirometro_repo = providers.Factory(PirometroRepository, session=db_session)
     leitura_repo = providers.Factory(LeituraRepository, session=db_session)
     cadinho_repo = providers.Factory(CadinhoRepository, session=db_session)
+    forno_repo = providers.Factory(FornoRepository, session=db_session)
 
     listar_pirometros_use_case = providers.Factory(
         ListarPirometrosUseCase, pirometro_repo=pirometro_repo
@@ -84,5 +93,19 @@ class Container(containers.DeclarativeContainer):
     )
     obter_status_campanha_use_case = providers.Factory(
         ObterStatusCampanhaUseCase,
+        cadinho_repo=cadinho_repo,
+    )
+    cadastrar_forno_use_case = providers.Factory(
+        CadastrarFornoUseCase,
+        forno_repo=forno_repo,
+    )
+    gerenciar_cadinhos_forno_use_case = providers.Factory(
+        GerenciarCadinhosFornoUseCase,
+        cadinho_repo=cadinho_repo,
+        forno_repo=forno_repo,
+    )
+    listar_fornos_use_case = providers.Factory(
+        ListarFornosECadinhosUseCase,
+        forno_repo=forno_repo,
         cadinho_repo=cadinho_repo,
     )

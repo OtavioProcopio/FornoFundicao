@@ -15,7 +15,15 @@ class ICadinhoRepository(ABC):
         pass
 
     @abstractmethod
-    def list_all(self, pirometro_id: Optional[str] = None) -> List[Cadinho]:
+    def list_all(
+        self,
+        pirometro_id: Optional[str] = None,
+        forno_id: Optional[int] = None,
+    ) -> List[Cadinho]:
+        pass
+
+    @abstractmethod
+    def list_active_by_forno(self, forno_id: int) -> List[Cadinho]:
         pass
 
     @abstractmethod

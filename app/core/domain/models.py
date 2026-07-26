@@ -4,6 +4,24 @@ from typing import List, Optional
 from sqlmodel import Field, Relationship, SQLModel
 
 
+class Forno(SQLModel, table=True):
+    __tablename__ = "forno"
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    nome: str
+    codigo_identificador: str = Field(unique=True)
+    setor: str
+    capacidade_kg: Optional[float] = Field(default=None)
+    tipo_liga: Optional[str] = Field(default=None)
+    max_cadinhos: int = Field(default=4)
+    ativo: bool = Field(default=True)
+    observacao: Optional[str] = Field(default=None)
+
+    # Relacionamentos
+    cadinhos: List["Cadinho"] = Relationship(back_populates="forno")
+    pirometros: List["Pirometro"] = Relationship(back_populates="forno")
+
+
 class Pirometro(SQLModel, table=True):
     __tablename__ = "pirometro"
 
@@ -14,8 +32,10 @@ class Pirometro(SQLModel, table=True):
     processo: str
     molde: str
     ativo: bool = Field(default=True)
+    forno_id: Optional[int] = Field(default=None, foreign_key="forno.id")
 
     # Relacionamentos
+    forno: Optional[Forno] = Relationship(back_populates="pirometros")
     codigos: List["CodigoPirometro"] = Relationship(back_populates="pirometro")
     leituras: List["Leitura"] = Relationship(back_populates="pirometro")
     cadinhos: List["Cadinho"] = Relationship(back_populates="pirometro")
@@ -65,7 +85,9 @@ class Cadinho(SQLModel, table=True):
     __tablename__ = "cadinho"
 
     id: Optional[int] = Field(default=None, primary_key=True)
-    pirometro_id: str = Field(foreign_key="pirometro.id")
+    forno_id: Optional[int] = Field(default=None, foreign_key="forno.id")
+    posicao_no_forno: Optional[int] = Field(default=None, ge=1, le=4)
+    pirometro_id: Optional[str] = Field(default=None, foreign_key="pirometro.id")
     codigo_identificador: str
     espessura_inicial_mm: float
     espessura_atual_mm: float
@@ -78,7 +100,8 @@ class Cadinho(SQLModel, table=True):
     observacao: Optional[str] = Field(default=None)
 
     # Relacionamentos
-    pirometro: Pirometro = Relationship(back_populates="cadinhos")
+    forno: Optional[Forno] = Relationship(back_populates="cadinhos")
+    pirometro: Optional[Pirometro] = Relationship(back_populates="cadinhos")
     registros_desgaste: List["RegistroDesgasteCadinho"] = Relationship(
         back_populates="cadinho"
     )

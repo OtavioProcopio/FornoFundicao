@@ -4,6 +4,7 @@ from sqlmodel import Session
 
 from adapter.controllers.cadinho_controller import router as cadinho_router
 from adapter.controllers.dashboard_controller import router as dashboard_router
+from adapter.controllers.forno_controller import router as forno_router
 from adapter.controllers.leitura_controller import router as leitura_router
 from adapter.controllers.pirometro_controller import router as pirometro_router
 from infra.config.container import Container
@@ -28,6 +29,7 @@ def create_app() -> FastAPI:
             "adapter.controllers.leitura_controller",
             "adapter.controllers.dashboard_controller",
             "adapter.controllers.cadinho_controller",
+            "adapter.controllers.forno_controller",
         ]
     )
 
@@ -43,6 +45,7 @@ def create_app() -> FastAPI:
     app.include_router(leitura_router)
     app.include_router(dashboard_router)
     app.include_router(cadinho_router)
+    app.include_router(forno_router)
 
     @app.on_event("startup")
     async def startup_event():
